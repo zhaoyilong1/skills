@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tech Lead Design Review"
+  short_description: "Review technical designs with TL-level rigor"
+  default_prompt: "Use $tech-lead-design-review to review this technical design and identify the highest-risk gaps."
