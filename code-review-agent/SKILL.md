@@ -11,6 +11,8 @@ Act as a senior teammate whose job is to prevent meaningful defects from reachin
 
 Prefer evidence over intuition. Tie each finding to the changed behavior, a concrete code path, and a file/line reference. If a concern is plausible but not proven, label it as a question or residual risk instead of presenting it as a finding.
 
+Use broad recall while analyzing and strict discipline while reporting. Explore plausible failure modes aggressively, then sort them through Triage Lanes before final output.
+
 ## Default Workflow
 
 1. Identify the review target: GitHub PR, commit range, branch diff, patch file, working tree, or specific files.
@@ -21,10 +23,11 @@ Prefer evidence over intuition. Tie each finding to the changed behavior, a conc
 3. Find the spec source if one exists:
    - Prefer linked issues, PR descriptions, explicit spec paths, branch-matching docs, and changed docs under `docs/`, `specs/`, or `.scratch/`.
    - If no spec exists, infer intent from commits, diff shape, tests, names, and nearby code. State the limitation in `Review Basis`.
-4. Run a Hybrid Review:
+4. Run a recall-biased Hybrid Review:
    - `Spec`: Does the change implement the requested or inferred behavior without scope creep?
    - `Standards`: Does the change follow repository-local standards and established patterns?
    - `Risk`: Could the change break users, callers, data, security, reliability, compatibility, performance, concurrency, or tests?
+   - During this pass, collect plausible concerns broadly. Do not decide final wording or severity yet.
 5. Decide whether this is a Substantial Review. Use isolated subagents only when the diff is large, cross-cutting, high-risk, security-sensitive, or ambiguous enough that independent passes will improve signal. Keep small reviews inline.
 6. Build a risk map from the changed surface:
    - External API, data model, auth, billing, async jobs, migrations, concurrency, caching, compatibility, UI state, error handling, observability, and release/rollback.
@@ -32,7 +35,12 @@ Prefer evidence over intuition. Tie each finding to the changed behavior, a conc
    - Run focused tests, type checks, lint, builds, or reproduction commands when feasible.
    - Search for existing patterns before calling something inconsistent.
    - Trace source to sink for security-sensitive paths.
-8. Report findings first, ordered by severity. Keep summaries short and secondary.
+8. Apply the Finding Gate and Triage Lanes:
+   - `Findings`: proven issues that pass evidence, impact, fixability, and confidence checks.
+   - `Open Questions`: uncertainty that blocks review confidence or requires user/product input.
+   - `Residual Risks`: important plausible concerns that do not meet the Finding Gate.
+9. Run the final Self-Check: dedupe, downgrade weak claims, verify severity, confirm actionability, and move unproven concerns out of Findings.
+10. Report findings first, ordered by severity. Keep summaries short and secondary.
 
 ## Substantial Review Subagents
 
@@ -42,6 +50,8 @@ For Substantial Reviews, use separate read-only passes when the current harness 
 - `Standards pass`: compare implementation against Standards Sources, local patterns, and maintainability hazards.
 - `Risk pass`: inspect correctness, security, data, reliability, compatibility, concurrency, and operational failure paths.
 - `Tests pass`: assess whether validation covers the changed behavior and realistic regressions.
+
+Each pass should return candidate concerns, not final Findings. Apply the Finding Gate and Triage Lanes in the main review before reporting.
 
 If subagents are unavailable, say so in `Review Basis` and run the Hybrid Review inline. Do not claim isolated review happened when it did not.
 
@@ -76,6 +86,10 @@ For a code review, use this structure:
 
 - Question that blocks confidence, if any.
 
+## Residual Risks
+
+- Important plausible concern that does not meet the Finding Gate, if any.
+
 ## Review Basis
 
 - Spec Source: file/link/inferred/none.
@@ -91,13 +105,15 @@ For a code review, use this structure:
 Brief change summary only after findings.
 ```
 
-If there are no findings, say that clearly, then list validation and residual risks. Do not invent low-value findings to fill space.
+If there are no findings, say that clearly, then list validation and meaningful residual risks, if any. Do not invent low-value findings to fill space.
 
 For GitHub review comments, make each comment self-contained and actionable. Include the failing condition, why the current code does not handle it, and the expected correction.
 
 ## Review Heuristics
 
 Prioritize changed behavior over unchanged code. Review unchanged code only when it is needed to understand the diff or reveals that the new change is unsafe.
+
+Use recall during analysis, not as permission to over-report. Candidate concerns that cannot pass the Finding Gate belong in Open Questions or Residual Risks.
 
 Treat tests as executable claims. If a change lacks tests, ask whether the changed behavior is covered by existing tests before marking it as a finding. Missing tests are findings when they hide a realistic regression path, not merely because coverage decreased.
 

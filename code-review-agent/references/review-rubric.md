@@ -21,12 +21,44 @@ A review finding must include:
 - Impact stated in user, caller, data, security, or operational terms.
 - A plausible fix or test direction.
 
-Downgrade to an open question when any of these are missing:
+When any of these are missing, route the concern through Triage Lanes instead of forcing it into Findings:
 
-- The code path may be impossible.
-- The intended behavior is unclear.
-- The concern depends on unstated product requirements.
-- The issue is mostly style or preference.
+- If the uncertainty blocks review confidence, make it an Open Question.
+- If the concern is important but unproven, make it a Residual Risk.
+- If the concern is low-impact, mostly style, or speculative, omit it.
+
+## Finding Gate
+
+Before reporting a Finding, verify all four gates:
+
+- `Evidence`: the failing path is supported by code, tests, docs, schema, API contract, runtime behavior, or a clear source-to-sink trace.
+- `Impact`: the issue can affect users, callers, data, security, reliability, compatibility, operations, or future changes in a concrete way.
+- `Fixability`: the author can take a specific corrective action or add a specific test.
+- `Confidence`: the claim is strong enough to state as a defect rather than a possibility.
+
+If any gate fails, do not report it as a Finding. Move it to an Open Question or Residual Risk, or omit it if it is low value.
+
+## Triage Lanes
+
+Use broad recall to discover candidate concerns, then sort them:
+
+- `Findings`: high-confidence defects that pass the Finding Gate. These can block merge when severity warrants it.
+- `Open Questions`: uncertainty that blocks confidence and requires user, product, spec, or author input.
+- `Residual Risks`: important plausible concerns that may matter but are not proven enough to be Findings.
+- `Omit`: preferences, low-impact speculation, duplicate concerns, and issues already handled by tooling.
+
+Keep Residual Risks short. They should preserve important review context without sounding like disguised Findings.
+
+## Self-Check
+
+Before final output:
+
+- Dedupe overlapping findings and keep the strongest representative.
+- Downgrade weak Findings into Open Questions or Residual Risks.
+- Verify severity against realistic merge risk.
+- Confirm each Finding has evidence, impact, and a concrete fix or test direction.
+- Remove style-only comments unless they hide a correctness or maintenance risk.
+- Ensure the output stays Findings First rather than a full Spec/Standards/Risk report.
 
 ## Common High-Value Findings
 
@@ -50,6 +82,7 @@ Downgrade to an open question when any of these are missing:
 - Do not present a best-practice preference as a bug.
 - Do not claim a security issue without tracing resource ownership, trust boundary, or data exposure.
 - Do not ignore generated files, lockfiles, migrations, configuration, feature flags, or deployment files when they affect runtime behavior.
+- Do not use Residual Risks as a back door for low-confidence Findings.
 
 ## Approval Guidance
 
@@ -59,3 +92,5 @@ Use one of these conclusions:
 - `Approve with nits`: Only optional or cosmetic issues remain.
 - `Request changes`: At least one `P0` or `P1`, or validation reveals a failing required check.
 - `Conditional approval`: The change looks sound, but a specific missing validation step should run before merge.
+
+Residual Risks alone do not require changes unless they expose a specific validation step that should run before merge.
