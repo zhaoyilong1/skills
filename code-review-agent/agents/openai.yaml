@@ -1,0 +1,4 @@
+interface:
+  display_name: "Code Review Agent"
+  short_description: "Review code changes with senior-engineer rigor"
+  default_prompt: "Use $code-review-agent to review this code change and lead with the highest-impact findings."
