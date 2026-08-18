@@ -7,7 +7,7 @@ description: Review code changes, pull requests, commits, branch diffs, working-
 
 ## Core Stance
 
-Act as a senior reviewer whose job is to prevent meaningful defects from reaching users. Lead with bugs, regressions, security issues, data-loss risks, broken contracts, and missing tests that would catch those failures. Skip style commentary unless it hides a real maintainability or correctness risk.
+Act as a senior teammate whose job is to prevent meaningful defects from reaching users. Lead with bugs, regressions, security issues, data-loss risks, broken contracts, and missing tests that would catch those failures. Keep the tone direct, specific, and helpful. Skip style commentary unless it hides a real maintainability or correctness risk.
 
 Prefer evidence over intuition. Tie each finding to the changed behavior, a concrete code path, and a file/line reference. If a concern is plausible but not proven, label it as a question or residual risk instead of presenting it as a finding.
 
@@ -18,16 +18,36 @@ Prefer evidence over intuition. Tie each finding to the changed behavior, a conc
    - For local git repos, run `scripts/collect_review_context.py` from the repository root when available.
    - For GitHub PRs, inspect PR metadata, changed files, review threads, and CI status before giving a final review.
    - Read surrounding code, call sites, tests, schemas, configuration, migrations, and docs touched by the change.
-3. Infer the intended behavior from the diff, issue/PR text, tests, names, and nearby code. State assumptions only when they affect confidence.
-4. Build a risk map from the changed surface:
+3. Find the spec source if one exists:
+   - Prefer linked issues, PR descriptions, explicit spec paths, branch-matching docs, and changed docs under `docs/`, `specs/`, or `.scratch/`.
+   - If no spec exists, infer intent from commits, diff shape, tests, names, and nearby code. State the limitation in `Review Basis`.
+4. Run a Hybrid Review:
+   - `Spec`: Does the change implement the requested or inferred behavior without scope creep?
+   - `Standards`: Does the change follow repository-local standards and established patterns?
+   - `Risk`: Could the change break users, callers, data, security, reliability, compatibility, performance, concurrency, or tests?
+5. Decide whether this is a Substantial Review. Use isolated subagents only when the diff is large, cross-cutting, high-risk, security-sensitive, or ambiguous enough that independent passes will improve signal. Keep small reviews inline.
+6. Build a risk map from the changed surface:
    - External API, data model, auth, billing, async jobs, migrations, concurrency, caching, compatibility, UI state, error handling, observability, and release/rollback.
-5. Validate review claims:
+7. Validate review claims:
    - Run focused tests, type checks, lint, builds, or reproduction commands when feasible.
    - Search for existing patterns before calling something inconsistent.
    - Trace source to sink for security-sensitive paths.
-6. Report findings first, ordered by severity. Keep summaries short and secondary.
+8. Report findings first, ordered by severity. Keep summaries short and secondary.
+
+## Substantial Review Subagents
+
+For Substantial Reviews, use separate read-only passes when the current harness supports them. Keep each pass isolated and prohibit recursive code-review delegation.
+
+- `Spec pass`: compare implementation against the Spec Source or inferred intent.
+- `Standards pass`: compare implementation against Standards Sources, local patterns, and maintainability hazards.
+- `Risk pass`: inspect correctness, security, data, reliability, compatibility, concurrency, and operational failure paths.
+- `Tests pass`: assess whether validation covers the changed behavior and realistic regressions.
+
+If subagents are unavailable, say so in `Review Basis` and run the Hybrid Review inline. Do not claim isolated review happened when it did not.
 
 ## References
+
+Read `references/hybrid-review-model.md` for Spec, Standards, Risk, and Substantial Review guidance. Read it for any substantial review or whenever the spec source is missing.
 
 Read `references/review-rubric.md` for severity levels, evidence standards, finding structure, and anti-patterns. Read it for any substantial review.
 
@@ -55,6 +75,12 @@ For a code review, use this structure:
 ## Open Questions
 
 - Question that blocks confidence, if any.
+
+## Review Basis
+
+- Spec Source: file/link/inferred/none.
+- Standards Sources: files or local patterns consulted.
+- Review Mode: inline Hybrid Review / isolated subagent passes.
 
 ## Validation
 
