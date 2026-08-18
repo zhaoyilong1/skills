@@ -1,0 +1,4 @@
+interface:
+  display_name: "System Design Grill"
+  short_description: "Interrogate designs and capture decisions"
+  default_prompt: "Use $system-design-grill to stress-test this system design and capture confirmed glossary terms or ADR-worthy decisions."

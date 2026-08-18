@@ -8,6 +8,10 @@ This context names the review-agent concepts used by the skills in this reposito
 A skill that reviews code changes for merge risk by checking intent, repository standards, and defects before reporting actionable findings.
 _Avoid_: review bot, lint agent
 
+**System Design Grill**:
+A skill that interrogates system engineering designs through an adaptive decision-tree interview while capturing confirmed domain terms and ADR-worthy design decisions.
+_Avoid_: design review rubric, spec checklist
+
 **Hybrid Review**:
 A review model that checks Spec, Standards, and Risk as separate inputs, then reports the final result defect-first by severity.
 _Avoid_: two-axis review, general review
